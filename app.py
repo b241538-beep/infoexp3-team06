@@ -18,8 +18,19 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             message TEXT NOT NULL,
-            created_at TEXT NOT NULL
+            created_at TEXT NOT NULL,
+            likes INTEGER NOT NULL DEFAULT 0
         )""")
+
+        columns = [
+            row["name"]
+            for row in con.execute("PRAGMA table_info(messages)").fetchall()
+        ]
+
+        if "likes" not in columns:
+            con.execute(
+                "ALTER TABLE messages ADD COLUMN likes INTEGER NOT NULL DEFAULT 0"
+            )
 
 @app.get("/")
 def index():
@@ -30,6 +41,24 @@ def get_messages():
     with connect() as con:
         rows = con.execute("SELECT * FROM messages ORDER BY id DESC").fetchall()
     return jsonify([dict(r) for r in rows])
+
+@app.post("/api/messages/<int:message_id>/like")
+def like_message(message_id):
+    with connect() as con:
+        cur = con.execute(
+            "UPDATE messages SET likes = likes + 1 WHERE id = ?",
+            (message_id,)
+        )
+
+        if cur.rowcount == 0:
+            return jsonify({"error": "not found"}), 404
+
+        row = con.execute(
+            "SELECT likes FROM messages WHERE id = ?",
+            (message_id,)
+        ).fetchone()
+
+    return jsonify({"likes": row["likes"]})
 
 @app.post("/api/messages")
 def create_message():
