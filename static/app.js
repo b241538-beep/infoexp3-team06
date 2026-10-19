@@ -8,8 +8,29 @@ async function loadMessages() {
       <b>${escapeHtml(x.name)}</b>
       <p>${escapeHtml(x.message)}</p>
       <div class="meta">#${x.id}</div>
+      #${x.id}
+        <!-- 削除ボタン（クラス: btn-delete） -->
+        <button onclick="deleteMessage(${x.id})" class="btn-delete">削除</button>
+      </div>
     </article>`
   ).join('');
+}
+
+// 投稿削除用関数
+async function deleteMessage(id) {
+  if (!confirm('この投稿を削除しますか？')) {
+    return;
+  }
+
+  const r = await fetch(`/api/messages/${id}`, {
+    method: 'DELETE'
+  });
+
+  if (r.ok) {
+    await loadMessages();
+  } else {
+    alert('削除に失敗しました');
+  }
 }
 
 function escapeHtml(s) {
