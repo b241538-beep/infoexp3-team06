@@ -4,8 +4,9 @@ async function loadMessages() {
   const r = await fetch('/api/messages');
   const xs = await r.json();
 
-  document.querySelector('#messages').innerHTML = xs.map(x => `
+  document.querySelector('#messages').innerHTML = xs.map((x, i) => `
     <article class="message">
+      <h3>${i === 0 ? '🥇 1位' : i === 1 ? '🥈 2位' : i === 2 ? '🥉 3位' : `${i + 1}位`}</h3>
       <b>${escapeHtml(x.name)}</b>
       <p>${escapeHtml(x.message)}</p>
       <div class="meta">#${x.id}</div>
