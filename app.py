@@ -39,7 +39,7 @@ def index():
 @app.get("/api/messages")
 def get_messages():
     with connect() as con:
-        rows = con.execute("SELECT * FROM messages ORDER BY id DESC").fetchall()
+        rows = con.execute("SELECT * FROM messages ORDER BY likes DESC, id DESC").fetchall()
     return jsonify([dict(r) for r in rows])
 
 @app.post("/api/messages/<int:message_id>/like")

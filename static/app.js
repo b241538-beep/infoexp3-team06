@@ -5,31 +5,29 @@ async function loadMessages() {
   const r = await fetch('/api/messages');
   const xs = await r.json();
 
-  const keyword = document.querySelector('#search').value
-    .trim()
-    .toLowerCase();
+  const search = document.querySelector('#search');
+  const keyword = search ? search.value.trim().toLowerCase() : '';
 
   const filtered = xs.filter(x =>
     x.name.toLowerCase().includes(keyword) ||
     x.message.toLowerCase().includes(keyword)
   );
 
-  document.querySelector('#messages').innerHTML = filtered
-    .map(x => `
-      <article class="message">
-        <b>${escapeHtml(x.name)}</b>
-        <p>${escapeHtml(x.message)}</p>
-        <div class="meta">#${x.id}</div>
-        <button type="button" onclick="deleteMessage(${x.id})">
-          削除
-        </button>
-        <button type="button" onclick="likeMessage(${x.id})">
-          👍 いいね ${x.likes ?? 0}
-        </button>
-      </article>
-    `)
-    .join('');
+  document.querySelector('#messages').innerHTML = filtered.map((x, i) => `
+    <article class="message">
+      <h3>${i === 0 ? '🥇 1位' : i === 1 ? '🥈 2位' : i === 2 ? '🥉 3位' : `${i + 1}位`}</h3>
+      <b>${escapeHtml(x.name)}</b>
+      <p>${escapeHtml(x.message)}</p>
+      <div class="meta">#${x.id}</div>
+      <button onclick="deleteMessage(${x.id})" class="btn-delete">削除</button>
+      <button type="button" onclick="likeMessage(${x.id})">
+        👍 いいね ${x.likes ?? 0}
+      </button>
+    </article>
+  `).join('');
 }
+
+  
 
 // HTMLに表示する文字を安全に変換
 function escapeHtml(s) {
